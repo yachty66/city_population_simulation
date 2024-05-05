@@ -1,10 +1,53 @@
 # city_population_simulation
 
-- [ ] find api for getting the same data for each zip code wich is available on gov site
-  - [ ] make sample request for getting data from an specified zip code
-- [ ] create personality profile template for all the data which is available in the api
-- [ ] find out what a good number of % is from the zip code for modelling
-- [ ] use this percentage for creating the subpopulation
+- [x] attributes i want to take for the population
+  - age (per age) - int
+  - sex - int
+  - ancestry - country
+  - Native and Foreign Born - yes/no
+  - median income - int
+  - education - degree title
+  - commuting
+  - industry
+  - rent - int
+  - disability - kind of disability
+  - health insurance - yes or no
+  - married - yes or no
+  - children - number of children
+- [x] all zip codes of san francisco
+  - 94102
+  - 94103
+  - 94104
+  - 94105
+  - 94107
+  - 94108
+  - 94109
+  - 94110
+  - 94111
+  - 94112
+  - 94114
+  - 94115
+  - 94116
+  - 94117
+  - 94118
+  - 94121
+  - 94122
+  - 94123
+  - 94124
+  - 94127
+  - 94129
+  - 94130
+  - 94131
+  - 94132
+  - 94133
+  - 94134
+  - 94158
+  - 94188
+  - 94501
+  - 94920
+- [ ] generate all the json objects from the data 
+- [ ] 
+
 - [ ] generate a description for each person and than add the whole row to some data format
 - [ ] repeat this for every single zip code
 - [ ] upload dataset to kaggle and huggingface
@@ -43,4 +86,3 @@ You are an 85-year-old male, living alone. With a junior high school education, 
 ```
 
 San Francisco has around 800,000 people. We aim to create a synthetic population subset of about 1% of that number, as costs become prohibitively high otherwise. Basically, we try to simulate one percent of the total population from a ZIP code area. For example, visit https://data.census.gov/profile/ZCTA5_80025?g=860XX00US80025. 20% of the population is 65 years old or older; our 1% subset should represent the same statistics.
-
