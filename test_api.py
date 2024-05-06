@@ -141,7 +141,7 @@ async def get_native_or_foreign_born():
     }
     return citizenship_data
 
-async def get_median_income():
+async def get_median_and_mean_income():
     urls = {
         "median_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0062E&for=county:075&in=state:06&key={API_KEY}",
         "mean_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0063E&for=county:075&in=state:06&key={API_KEY}"
@@ -159,5 +159,6 @@ async def get_median_income():
 
 # Run the async function and print the results
 if __name__ == "__main__":
-    result = asyncio.run(get_median_income())
+    result = asyncio.run(get_median_and_mean_income())
     print(result)
+
