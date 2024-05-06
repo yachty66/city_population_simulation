@@ -1,14 +1,16 @@
 # city_population_simulation
 
+i guess i can just take each age group and in the case i want to do any surveys i can just adjust them
+
 - [x] attributes i want to take for the population
-  - age (per age) - int - 
-  - sex - int - 
-  - ancestry - country - 
-  - Native and Foreign Born - yes/no - 
+  - age (per age) - int -
+  - sex - int -
+  - ancestry - country -
+  - Native and Foreign Born - yes/no -
   - median income - int -
-  - education - degree title  
-  - commuting
-  - industry
+  - education - degree title - ONLY APPLICAPLE FOR POPULATION 25 YEARS AND OLDER
+  - employment and labor force status - employment rate for population 16 years and over 
+  - industry - PART OF THE EMPLOYMENT RATE FROM ABOVE
   - rent - int
   - disability - kind of disability
   - health insurance - yes or no
@@ -45,8 +47,8 @@
   - 94188
   - 94501
   - 94920
-- [ ] generate all the json objects from the data 
-- [ ] 
+- [ ] generate all the json objects from the data
+- [ ]
 
 - [ ] generate a description for each person and than add the whole row to some data format
 - [ ] repeat this for every single zip code

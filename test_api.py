@@ -13,6 +13,18 @@ API_KEY = os.getenv("API_KEY")
 print(API_KEY)  # This should pr
 
 age_population_mapper = {
+    "Under 5 years": {
+        "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_002E&for=county:075&in=state:06&key={API_KEY}",
+    },
+    "5 to 9 years": {
+        "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_003E&for=county:075&in=state:06&key={API_KEY}",
+    },
+    "10 to 14 years": {
+        "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_004E&for=county:075&in=state:06&key={API_KEY}",
+    },
+    "15 to 19 years": {
+        "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_005E&for=county:075&in=state:06&key={API_KEY}",
+    },
     "20 to 24 years": {
         "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_006E&for=county:075&in=state:06&key={API_KEY}",
     },
@@ -52,6 +64,9 @@ age_population_mapper = {
     "80 to 84 years": {
         "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_018E&for=county:075&in=state:06&key={API_KEY}",
     },
+    "80 to 84 years": {
+        "total": f"https://api.census.gov/data/2022/acs/acs5/subject?get=NAME,S0101_C01_019E&for=county:075&in=state:06&key={API_KEY}",
+    },
 }
 
 
@@ -90,6 +105,10 @@ def get_age_and_gender():
     population_data = asyncio.run(get_all_population_data())
     people = []
     age_ranges = {
+        "Under 5 years": (0, 5),
+        "5 to 9 years": (5, 9),
+        "10 to 14 years": (10, 14),
+        "15 to 19 years": (15, 19),
         "20 to 24 years": (20, 24),
         "25 to 29 years": (25, 29),
         "30 to 34 years": (30, 34),
@@ -179,8 +198,46 @@ async def get_education():
     }
     return education_data
 
+async def employment_labor_force_status():
+    """
+    Population 16 years and over employment rate
+    """
+    url = "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0004PE&for=county:075&in=state:06&key={API_KEY}"
+    # Fetch the data using the fetch_data function
+    data = await fetch_data(url.format(API_KEY=API_KEY))
+    # Check if data was successfully fetched and extract the employment rate
+    if data and len(data) > 1 and len(data[1]) > 1:
+        employment_rate = data[1][1]  # Assuming the employment rate is in the second element of the second list
+    else:
+        employment_rate = 'Data not available'
+    return {"employment_rate": employment_rate}
+
+async def get_industry():
+    urls = {
+        "Agriculture, forestry, fishing and hunting, and mining": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0033PE&for=county:075&in=state:06&key={API_KEY}",
+        "Construction": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0034PE&for=county:075&in=state:06&key={API_KEY}",
+        "Manufacturing": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0035PE&for=county:075&in=state:06&key={API_KEY}",
+        "Wholesale trade": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0036PE&for=county:075&in=state:06&key={API_KEY}",
+        "Retail trade": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0037PE&for=county:075&in=state:06&key={API_KEY}",
+        "Transportation and warehousing, and utilities": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0038PE&for=county:075&in=state:06&key={API_KEY}",
+        "Information": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0039PE&for=county:075&in=state:06&key={API_KEY}",
+        "Finance and insurance, and real estate and rental and leasing": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0040PE&for=county:075&in=state:06&key={API_KEY}",
+        "Professional, scientific, and management, and administrative and waste management services": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0041PE&for=county:075&in=state:06&key={API_KEY}",
+        "Educational services, and health care and social assistance": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0042PE&for=county:075&in=state:06&key={API_KEY}",
+        "Arts, entertainment, and recreation, and accommodation and food services": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0043PE&for=county:075&in=state:06&key={API_KEY}",
+        "Other services, except public administration": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0044PE&for=county:075&in=state:06&key={API_KEY}",
+        "Public administration": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0045PE&for=county:075&in=state:06&key={API_KEY}"
+    }
+    # Fetch data concurrently
+    data = await asyncio.gather(
+        *(fetch_data(url.format(API_KEY=API_KEY)) for url in urls.values())
+    )
+    # Map fetched data back to their respective categories
+    industry_data = {category: data[i][1][1] if data[i] else 'Data not available' for i, category in enumerate(urls)}
+    return industry_data
+
 # Run the async function and print the results
 if __name__ == "__main__":
-    result = asyncio.run(get_education())
+    result = asyncio.run(get_industry())
     print(result)
 
