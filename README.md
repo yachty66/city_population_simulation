@@ -1,12 +1,12 @@
 # city_population_simulation
 
 - [x] attributes i want to take for the population
-  - age (per age) - int
-  - sex - int
-  - ancestry - country
-  - Native and Foreign Born - yes/no
-  - median income - int
-  - education - degree title
+  - age (per age) - int - 
+  - sex - int - 
+  - ancestry - country - 
+  - Native and Foreign Born - yes/no - 
+  - median income - int -
+  - education - degree title 
   - commuting
   - industry
   - rent - int
