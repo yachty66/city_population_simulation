@@ -157,8 +157,30 @@ async def get_median_and_mean_income():
     }
     return income_data
 
+async def get_education():
+    urls = {
+        "high_school_graduate": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0062PE&for=county:075&in=state:06&key={API_KEY}",
+        "some_college_no_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0063PE&for=county:075&in=state:06&key={API_KEY}",
+        "associate_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0064PE&for=county:075&in=state:06&key={API_KEY}",
+        "bachelor_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0065PE&for=county:075&in=state:06&key={API_KEY}",
+        "graduate_or_professional_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0066PE&for=county:075&in=state:06&key={API_KEY}"
+    }
+    # Fetch data concurrently
+    data = await asyncio.gather(
+        *(fetch_data(url.format(API_KEY=API_KEY)) for url in urls.values())
+    )
+    # Map fetched data back to their respective categories
+    education_data = {
+        "high_school_graduate": data[0][1][1] if data[0] else 'Data not available',
+        "some_college_no_degree": data[1][1][1] if data[1] else 'Data not available',
+        "associate_degree": data[2][1][1] if data[2] else 'Data not available',
+        "bachelor_degree": data[3][1][1] if data[3] else 'Data not available',
+        "graduate_or_professional_degree": data[4][1][1] if data[4] else 'Data not available'
+    }
+    return education_data
+
 # Run the async function and print the results
 if __name__ == "__main__":
-    result = asyncio.run(get_median_and_mean_income())
+    result = asyncio.run(get_education())
     print(result)
 

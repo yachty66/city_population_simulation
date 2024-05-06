@@ -6,7 +6,7 @@
   - ancestry - country - 
   - Native and Foreign Born - yes/no - 
   - median income - int -
-  - education - degree title 
+  - education - degree title  
   - commuting
   - industry
   - rent - int
