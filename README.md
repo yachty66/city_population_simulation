@@ -11,11 +11,7 @@ i guess i can just take each age group and in the case i want to do any surveys 
   - education - degree title - ONLY APPLICAPLE FOR POPULATION 25 YEARS AND OLDER
   - employment and labor force status - employment rate for population 16 years and over 
   - industry - PART OF THE EMPLOYMENT RATE FROM ABOVE
-  - rent - int
-  - disability - kind of disability
-  - health insurance - yes or no
-  - married - yes or no
-  - children - number of children
+  - married - yes or no --> only for folks > 18
 - [x] all zip codes of san francisco
   - 94102
   - 94103
@@ -48,8 +44,6 @@ i guess i can just take each age group and in the case i want to do any surveys 
   - 94501
   - 94920
 - [ ] generate all the json objects from the data
-- [ ]
-
 - [ ] generate a description for each person and than add the whole row to some data format
 - [ ] repeat this for every single zip code
 - [ ] upload dataset to kaggle and huggingface

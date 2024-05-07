@@ -10,7 +10,6 @@ load_dotenv()
 
 # Now you can safely load your API key
 API_KEY = os.getenv("API_KEY")
-print(API_KEY)  # This should pr
 
 age_population_mapper = {
     "Under 5 years": {
@@ -101,8 +100,8 @@ async def get_all_population_data():
         return age_population_mapper
 
 
-def get_age_and_gender():
-    population_data = asyncio.run(get_all_population_data())
+async def get_age_and_gender():
+    population_data = await get_all_population_data()
     people = []
     age_ranges = {
         "Under 5 years": (0, 5),
@@ -236,8 +235,81 @@ async def get_industry():
     industry_data = {category: data[i][1][1] if data[i] else 'Data not available' for i, category in enumerate(urls)}
     return industry_data
 
-# Run the async function and print the results
-if __name__ == "__main__":
-    result = asyncio.run(get_industry())
-    print(result)
+async def get_married_status():
+    """
+    Married-couple family household
+    """
+    url = "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0002PE&for=county:075&in=state:06&key={API_KEY}"
+    # Fetch the data using the fetch_data function
+    data = await fetch_data(url.format(API_KEY=API_KEY))
+    # Check if data was successfully fetched and extract the married status
+    if data and len(data) > 1 and len(data[1]) > 1:
+        married_status = data[1][1]  # Assuming the married status is in the second element of the second list
+    else:
+        married_status = 'Data not available'
+    return {"married_status": married_status}
 
+def generate_json_objects():
+    """
+    - age (per age) - int -
+    - sex - int -
+    - Native and Foreign Born - yes/no -
+    - median income - int -
+    - education - degree title - ONLY APPLICAPLE FOR POPULATION 25 YEARS AND OLDER
+    - employment and labor force status - employment rate for population 16 years and over 
+    - industry - PART OF THE EMPLOYMENT RATE FROM ABOVE
+    - married - yes or no --> only for folks > 18
+    """
+    #generate json object for age and sex. how can i do this exactly? 
+    pass
+
+async def main():
+    # Fetch all required data concurrently
+    native_foreign_data = await get_native_or_foreign_born()
+    income_data = await get_median_and_mean_income()
+    education_data = await get_education()
+    people = await get_age_and_gender()
+
+    not_us_citizen_percentage = float(native_foreign_data['not_us_citizen'])
+    us_citizen_percentage = float(native_foreign_data['us_citizen'])
+
+    income_range_percentage = 20
+    median_income = int(income_data['median_income'])
+
+    # Combine all fetched data into a single JSON object per person
+    json_objects = []
+    for person in people:
+        # Assign native or foreign born status based on the fetched percentages
+        is_foreign_born = random.choices(
+            ['Non US citizen', 'US citizen'],
+            weights=[not_us_citizen_percentage, us_citizen_percentage],
+            k=1
+        )[0]
+
+        person_data = {
+            "age": person['age'],
+            "gender": person['gender'],
+            "native_or_foreign_born": is_foreign_born
+        }
+
+        # Only add income data if the person is 25 years old or older
+        if person['age'] >= 25:
+            income_variation = random.randint(-income_range_percentage, income_range_percentage) / 100.0
+            income = int(median_income * (1 + income_variation))
+            person_data["income"] = income
+
+            # Assign education based on the fetched percentages
+            education_levels = ['high_school_graduate', 'some_college_no_degree', 'associate_degree', 'bachelor_degree', 'graduate_or_professional_degree']
+            weights = [float(education_data[level]) for level in education_levels]
+            education = random.choices(education_levels, weights=weights, k=1)[0]
+            person_data["degree"] = education
+
+        json_objects.append(person_data)
+
+    print(json_objects)
+    return json_objects
+
+if __name__ == "__main__":
+    import asyncio
+    result = asyncio.run(main())
+    print(result)
