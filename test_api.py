@@ -3,12 +3,9 @@ import aiohttp
 import asyncio
 from dotenv import load_dotenv
 import random
-import json
 
-# Load the environment variables from the .env file
 load_dotenv()
 
-# Now you can safely load your API key
 API_KEY = os.getenv("API_KEY")
 
 age_population_mapper = {
@@ -72,14 +69,12 @@ age_population_mapper = {
 async def fetch_population_data(session, url):
     async with session.get(url) as response:
         if response.status != 200:
-            # Log the error or handle it according to your needs
             print(f"Error fetching data from {url}: {response.status}")
             return None
         try:
             data = await response.json()
             return data[1][1]  # Extract the population value
         except aiohttp.ContentTypeError:
-            # Handle cases where the content type is not application/json
             print(
                 f"Invalid content type from {url}: {response.headers['Content-Type']}"
             )
@@ -143,45 +138,44 @@ async def fetch_data(url):
                 print(f"Failed to fetch data: {response.status}")
                 return None
 
+
 async def get_native_or_foreign_born():
     urls = {
         "not_us_citizen": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0097PE&for=county:075&in=state:06&key={API_KEY}",
-        "us_citizen": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0096PE&for=county:075&in=state:06&key={API_KEY}"
+        "us_citizen": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0096PE&for=county:075&in=state:06&key={API_KEY}",
     }
     # Fetch data concurrently
-    data = await asyncio.gather(
-        *(fetch_data(url) for url in urls.values())
-    )
+    data = await asyncio.gather(*(fetch_data(url) for url in urls.values()))
     # Map fetched data back to their respective categories
     citizenship_data = {
-        "not_us_citizen": data[0][1][1] if data[0] else 'Data not available',
-        "us_citizen": data[1][1][1] if data[1] else 'Data not available'
+        "not_us_citizen": data[0][1][1] if data[0] else "Data not available",
+        "us_citizen": data[1][1][1] if data[1] else "Data not available",
     }
     return citizenship_data
+
 
 async def get_median_and_mean_income():
     urls = {
         "median_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0062E&for=county:075&in=state:06&key={API_KEY}",
-        "mean_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0063E&for=county:075&in=state:06&key={API_KEY}"
+        "mean_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0063E&for=county:075&in=state:06&key={API_KEY}",
     }
     # Fetch data concurrently
-    data = await asyncio.gather(
-        *(fetch_data(url) for url in urls.values())
-    )
+    data = await asyncio.gather(*(fetch_data(url) for url in urls.values()))
     # Map fetched data back to their respective categories
     income_data = {
-        "median_income": data[0][1][1] if data[0] else 'Data not available',
-        "mean_income": data[1][1][1] if data[1] else 'Data not available'
+        "median_income": data[0][1][1] if data[0] else "Data not available",
+        "mean_income": data[1][1][1] if data[1] else "Data not available",
     }
     return income_data
 
+
 async def get_education():
     urls = {
-        "high_school_graduate": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0062PE&for=county:075&in=state:06&key={API_KEY}",
-        "some_college_no_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0063PE&for=county:075&in=state:06&key={API_KEY}",
-        "associate_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0064PE&for=county:075&in=state:06&key={API_KEY}",
-        "bachelor_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0065PE&for=county:075&in=state:06&key={API_KEY}",
-        "graduate_or_professional_degree": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0066PE&for=county:075&in=state:06&key={API_KEY}"
+        "high_school_graduate": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0062PE&for=county:075&in=state:06&key={API_KEY}",
+        "some_college_no_degree": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0063PE&for=county:075&in=state:06&key={API_KEY}",
+        "associate_degree": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0064PE&for=county:075&in=state:06&key={API_KEY}",
+        "bachelor_degree": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0065PE&for=county:075&in=state:06&key={API_KEY}",
+        "graduate_or_professional_degree": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0066PE&for=county:075&in=state:06&key={API_KEY}",
     }
     # Fetch data concurrently
     data = await asyncio.gather(
@@ -189,127 +183,151 @@ async def get_education():
     )
     # Map fetched data back to their respective categories
     education_data = {
-        "high_school_graduate": data[0][1][1] if data[0] else 'Data not available',
-        "some_college_no_degree": data[1][1][1] if data[1] else 'Data not available',
-        "associate_degree": data[2][1][1] if data[2] else 'Data not available',
-        "bachelor_degree": data[3][1][1] if data[3] else 'Data not available',
-        "graduate_or_professional_degree": data[4][1][1] if data[4] else 'Data not available'
+        "high_school_graduate": data[0][1][1] if data[0] else "Data not available",
+        "some_college_no_degree": data[1][1][1] if data[1] else "Data not available",
+        "associate_degree": data[2][1][1] if data[2] else "Data not available",
+        "bachelor_degree": data[3][1][1] if data[3] else "Data not available",
+        "graduate_or_professional_degree": (
+            data[4][1][1] if data[4] else "Data not available"
+        ),
     }
     return education_data
+
 
 async def employment_labor_force_status():
     """
     Population 16 years and over employment rate
     """
-    url = "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0004PE&for=county:075&in=state:06&key={API_KEY}"
+    url = f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0004PE&for=county:075&in=state:06&key={API_KEY}"
     # Fetch the data using the fetch_data function
-    data = await fetch_data(url.format(API_KEY=API_KEY))
+    data = await fetch_data(url)
     # Check if data was successfully fetched and extract the employment rate
     if data and len(data) > 1 and len(data[1]) > 1:
-        employment_rate = data[1][1]  # Assuming the employment rate is in the second element of the second list
+        employment_rate = data[1][
+            1
+        ]  # Assuming the employment rate is in the second element of the second list
     else:
-        employment_rate = 'Data not available'
+        employment_rate = "Data not available"
     return {"employment_rate": employment_rate}
+
 
 async def get_industry():
     urls = {
-        "Agriculture, forestry, fishing and hunting, and mining": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0033PE&for=county:075&in=state:06&key={API_KEY}",
-        "Construction": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0034PE&for=county:075&in=state:06&key={API_KEY}",
-        "Manufacturing": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0035PE&for=county:075&in=state:06&key={API_KEY}",
-        "Wholesale trade": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0036PE&for=county:075&in=state:06&key={API_KEY}",
-        "Retail trade": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0037PE&for=county:075&in=state:06&key={API_KEY}",
-        "Transportation and warehousing, and utilities": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0038PE&for=county:075&in=state:06&key={API_KEY}",
-        "Information": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0039PE&for=county:075&in=state:06&key={API_KEY}",
-        "Finance and insurance, and real estate and rental and leasing": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0040PE&for=county:075&in=state:06&key={API_KEY}",
-        "Professional, scientific, and management, and administrative and waste management services": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0041PE&for=county:075&in=state:06&key={API_KEY}",
-        "Educational services, and health care and social assistance": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0042PE&for=county:075&in=state:06&key={API_KEY}",
-        "Arts, entertainment, and recreation, and accommodation and food services": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0043PE&for=county:075&in=state:06&key={API_KEY}",
-        "Other services, except public administration": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0044PE&for=county:075&in=state:06&key={API_KEY}",
-        "Public administration": "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0045PE&for=county:075&in=state:06&key={API_KEY}"
+        "Agriculture, forestry, fishing and hunting, and mining": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0033PE&for=county:075&in=state:06&key={API_KEY}",
+        "Construction": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0034PE&for=county:075&in=state:06&key={API_KEY}",
+        "Manufacturing": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0035PE&for=county:075&in=state:06&key={API_KEY}",
+        "Wholesale trade": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0036PE&for=county:075&in=state:06&key={API_KEY}",
+        "Retail trade": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0037PE&for=county:075&in=state:06&key={API_KEY}",
+        "Transportation and warehousing, and utilities": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0038PE&for=county:075&in=state:06&key={API_KEY}",
+        "Information": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0039PE&for=county:075&in=state:06&key={API_KEY}",
+        "Finance and insurance, and real estate and rental and leasing": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0040PE&for=county:075&in=state:06&key={API_KEY}",
+        "Professional, scientific, and management, and administrative and waste management services": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0041PE&for=county:075&in=state:06&key={API_KEY}",
+        "Educational services, and health care and social assistance": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0042PE&for=county:075&in=state:06&key={API_KEY}",
+        "Arts, entertainment, and recreation, and accommodation and food services": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0043PE&for=county:075&in=state:06&key={API_KEY}",
+        "Other services, except public administration": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0044PE&for=county:075&in=state:06&key={API_KEY}",
+        "Public administration": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0045PE&for=county:075&in=state:06&key={API_KEY}",
     }
     # Fetch data concurrently
     data = await asyncio.gather(
         *(fetch_data(url.format(API_KEY=API_KEY)) for url in urls.values())
     )
     # Map fetched data back to their respective categories
-    industry_data = {category: data[i][1][1] if data[i] else 'Data not available' for i, category in enumerate(urls)}
+    industry_data = {
+        category: data[i][1][1] if data[i] else "Data not available"
+        for i, category in enumerate(urls)
+    }
     return industry_data
+
 
 async def get_married_status():
     """
     Married-couple family household
     """
-    url = "https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0002PE&for=county:075&in=state:06&key={API_KEY}"
+    url = f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0002PE&for=county:075&in=state:06&key={API_KEY}"
     # Fetch the data using the fetch_data function
     data = await fetch_data(url.format(API_KEY=API_KEY))
     # Check if data was successfully fetched and extract the married status
     if data and len(data) > 1 and len(data[1]) > 1:
-        married_status = data[1][1]  # Assuming the married status is in the second element of the second list
+        married_status = data[1][
+            1
+        ]  # Assuming the married status is in the second element of the second list
     else:
-        married_status = 'Data not available'
+        married_status = "Data not available"
     return {"married_status": married_status}
 
-def generate_json_objects():
-    """
-    - age (per age) - int -
-    - sex - int -
-    - Native and Foreign Born - yes/no -
-    - median income - int -
-    - education - degree title - ONLY APPLICAPLE FOR POPULATION 25 YEARS AND OLDER
-    - employment and labor force status - employment rate for population 16 years and over 
-    - industry - PART OF THE EMPLOYMENT RATE FROM ABOVE
-    - married - yes or no --> only for folks > 18
-    """
-    #generate json object for age and sex. how can i do this exactly? 
-    pass
 
 async def main():
-    # Fetch all required data concurrently
     native_foreign_data = await get_native_or_foreign_born()
     income_data = await get_median_and_mean_income()
     education_data = await get_education()
+    employment_data = await employment_labor_force_status()
+    industry_data = await get_industry()
+    married_status_data = await get_married_status()
     people = await get_age_and_gender()
-
-    not_us_citizen_percentage = float(native_foreign_data['not_us_citizen'])
-    us_citizen_percentage = float(native_foreign_data['us_citizen'])
-
+    not_us_citizen_percentage = float(native_foreign_data["not_us_citizen"])
+    us_citizen_percentage = float(native_foreign_data["us_citizen"])
+    employment_rate = float(employment_data["employment_rate"])
+    married_status_percentage = float(married_status_data["married_status"])
     income_range_percentage = 20
-    median_income = int(income_data['median_income'])
-
-    # Combine all fetched data into a single JSON object per person
+    median_income = int(income_data["median_income"])
     json_objects = []
     for person in people:
-        # Assign native or foreign born status based on the fetched percentages
         is_foreign_born = random.choices(
-            ['Non US citizen', 'US citizen'],
+            ["Non US citizen", "US citizen"],
             weights=[not_us_citizen_percentage, us_citizen_percentage],
-            k=1
+            k=1,
         )[0]
-
         person_data = {
-            "age": person['age'],
-            "gender": person['gender'],
-            "native_or_foreign_born": is_foreign_born
+            "age": person["age"],
+            "gender": person["gender"],
+            "native_or_foreign_born": is_foreign_born,
         }
-
-        # Only add income data if the person is 25 years old or older
-        if person['age'] >= 25:
-            income_variation = random.randint(-income_range_percentage, income_range_percentage) / 100.0
+        if person["age"] >= 25:
+            income_variation = (
+                random.randint(-income_range_percentage, income_range_percentage)
+                / 100.0
+            )
             income = int(median_income * (1 + income_variation))
             person_data["income"] = income
-
-            # Assign education based on the fetched percentages
-            education_levels = ['high_school_graduate', 'some_college_no_degree', 'associate_degree', 'bachelor_degree', 'graduate_or_professional_degree']
+            education_levels = [
+                "high_school_graduate",
+                "some_college_no_degree",
+                "associate_degree",
+                "bachelor_degree",
+                "graduate_or_professional_degree",
+            ]
             weights = [float(education_data[level]) for level in education_levels]
             education = random.choices(education_levels, weights=weights, k=1)[0]
             person_data["degree"] = education
-
+        if person["age"] >= 16:
+            is_employed = random.choices(
+                ["Employed", "Unemployed"],
+                weights=[employment_rate, 100 - employment_rate],
+                k=1,
+            )[0]
+            person_data["employment"] = is_employed
+            if is_employed == "Employed":
+                industry_names = list(industry_data.keys())
+                industry_weights = [
+                    float(industry_data[industry]) for industry in industry_names
+                ]
+                industry_assigned = random.choices(
+                    industry_names, weights=industry_weights, k=1
+                )[0]
+                person_data["industry"] = industry_assigned
+        if person["age"] >= 18:
+            is_married = random.choices(
+                ["Married", "Not Married"],
+                weights=[married_status_percentage, 100 - married_status_percentage],
+                k=1,
+            )[0]
+            person_data["married_status"] = is_married
         json_objects.append(person_data)
-
     print(json_objects)
     return json_objects
 
+
 if __name__ == "__main__":
     import asyncio
-    result = asyncio.run(main())
-    print(result)
+
+    asyncio.run(main())
