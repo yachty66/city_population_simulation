@@ -3,6 +3,7 @@ import aiohttp
 import asyncio
 from dotenv import load_dotenv
 import random
+import json
 
 load_dotenv()
 
@@ -73,7 +74,7 @@ async def fetch_population_data(session, url):
             return None
         try:
             data = await response.json()
-            return data[1][1]  # Extract the population value
+            return data[1][1]
         except aiohttp.ContentTypeError:
             print(
                 f"Invalid content type from {url}: {response.headers['Content-Type']}"
@@ -89,7 +90,6 @@ async def get_all_population_data():
             task = asyncio.create_task(fetch_population_data(session, url))
             tasks.append(task)
         results = await asyncio.gather(*tasks)
-        # Update the dictionary with actual population data
         for (age_group, _), population in zip(age_population_mapper.items(), results):
             age_population_mapper[age_group]["total"] = population
         return age_population_mapper
@@ -119,7 +119,7 @@ async def get_age_and_gender():
     }
     for age_group, data in population_data.items():
         total_population = int(data["total"])
-        sample_size = total_population // 100  # 1% of the total population
+        sample_size = total_population // 100
         for _ in range(sample_size):
             age_min, age_max = age_ranges[age_group]
             age = random.randint(age_min, age_max)
@@ -144,9 +144,7 @@ async def get_native_or_foreign_born():
         "not_us_citizen": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0097PE&for=county:075&in=state:06&key={API_KEY}",
         "us_citizen": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0096PE&for=county:075&in=state:06&key={API_KEY}",
     }
-    # Fetch data concurrently
     data = await asyncio.gather(*(fetch_data(url) for url in urls.values()))
-    # Map fetched data back to their respective categories
     citizenship_data = {
         "not_us_citizen": data[0][1][1] if data[0] else "Data not available",
         "us_citizen": data[1][1][1] if data[1] else "Data not available",
@@ -159,9 +157,7 @@ async def get_median_and_mean_income():
         "median_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0062E&for=county:075&in=state:06&key={API_KEY}",
         "mean_income": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0063E&for=county:075&in=state:06&key={API_KEY}",
     }
-    # Fetch data concurrently
     data = await asyncio.gather(*(fetch_data(url) for url in urls.values()))
-    # Map fetched data back to their respective categories
     income_data = {
         "median_income": data[0][1][1] if data[0] else "Data not available",
         "mean_income": data[1][1][1] if data[1] else "Data not available",
@@ -177,11 +173,9 @@ async def get_education():
         "bachelor_degree": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0065PE&for=county:075&in=state:06&key={API_KEY}",
         "graduate_or_professional_degree": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0066PE&for=county:075&in=state:06&key={API_KEY}",
     }
-    # Fetch data concurrently
     data = await asyncio.gather(
         *(fetch_data(url.format(API_KEY=API_KEY)) for url in urls.values())
     )
-    # Map fetched data back to their respective categories
     education_data = {
         "high_school_graduate": data[0][1][1] if data[0] else "Data not available",
         "some_college_no_degree": data[1][1][1] if data[1] else "Data not available",
@@ -199,13 +193,9 @@ async def employment_labor_force_status():
     Population 16 years and over employment rate
     """
     url = f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0004PE&for=county:075&in=state:06&key={API_KEY}"
-    # Fetch the data using the fetch_data function
     data = await fetch_data(url)
-    # Check if data was successfully fetched and extract the employment rate
     if data and len(data) > 1 and len(data[1]) > 1:
-        employment_rate = data[1][
-            1
-        ]  # Assuming the employment rate is in the second element of the second list
+        employment_rate = data[1][1]
     else:
         employment_rate = "Data not available"
     return {"employment_rate": employment_rate}
@@ -227,11 +217,9 @@ async def get_industry():
         "Other services, except public administration": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0044PE&for=county:075&in=state:06&key={API_KEY}",
         "Public administration": f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP03_0045PE&for=county:075&in=state:06&key={API_KEY}",
     }
-    # Fetch data concurrently
     data = await asyncio.gather(
         *(fetch_data(url.format(API_KEY=API_KEY)) for url in urls.values())
     )
-    # Map fetched data back to their respective categories
     industry_data = {
         category: data[i][1][1] if data[i] else "Data not available"
         for i, category in enumerate(urls)
@@ -240,17 +228,10 @@ async def get_industry():
 
 
 async def get_married_status():
-    """
-    Married-couple family household
-    """
     url = f"https://api.census.gov/data/2022/acs/acs1/profile?get=NAME,DP02_0002PE&for=county:075&in=state:06&key={API_KEY}"
-    # Fetch the data using the fetch_data function
     data = await fetch_data(url.format(API_KEY=API_KEY))
-    # Check if data was successfully fetched and extract the married status
     if data and len(data) > 1 and len(data[1]) > 1:
-        married_status = data[1][
-            1
-        ]  # Assuming the married status is in the second element of the second list
+        married_status = data[1][1]
     else:
         married_status = "Data not available"
     return {"married_status": married_status}
@@ -323,11 +304,12 @@ async def main():
             )[0]
             person_data["married_status"] = is_married
         json_objects.append(person_data)
-    print(json_objects)
-    return json_objects
+    json_data = json.dumps(json_objects, indent=4)
+    with open("people_data.json", "w") as file:
+        file.write(json_data)
+    print("Data written to 'people_data.json'")
 
 
 if __name__ == "__main__":
     import asyncio
-
     asyncio.run(main())
